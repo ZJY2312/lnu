@@ -17,8 +17,8 @@ your_account2,your_password2,start_time2,end_time2,your_preferroom,your_prefersi
 # 账号密码字典
 
 account_password4 = {
-    "4032440997": "000000",
-    "4032441001": "000000"
+    "4032441001": "000000",
+    "4032440997": "000000"
 }
 
 
