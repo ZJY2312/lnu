@@ -181,7 +181,7 @@ def choose_it(driver, sit_avilable, idx, reading_room, day_type, max_attempts=50
     返回:
     bool: 预约是否成功
     """
-    dir_time = {3: [['9:00', '15:00'], ['16:00', '22:00']], 2: [['14:00', '18:00'], ['18:00', '22:00']]}
+    dir_time = {3: [['10:00', '16:00'], ['17:00', '21:00']], 2: [['14:00', '18:00'], ['18:00', '22:00']]}
     start_time = dir_time[day_type][idx][0]
     end_time = dir_time[day_type][idx][1]
 
