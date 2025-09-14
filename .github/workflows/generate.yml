@@ -1,35 +1,36 @@
-name: Auto Generate script.py
+name: Auto Generate Scripts
 
 on:
   push:
     paths:
-      - 'configs/config.json'  # 仅当此文件发生变化时触发
-      - 'templates/script_template.py.j2'
+      - 'configs/config.json'
+      - 'templates/script_template1.py.j2'
+      - 'templates/script_template2.py.j2'
 
 jobs:
   generate:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-    - name: Install dependencies
-      run: |
-        pip install jinja2
+      - name: Install dependencies
+        run: |
+          pip install jinja2
 
-    - name: Run script generator
-      run: python generate_script.py
+      - name: Run script generator
+        run: python generate_script.py
 
-    - name: Commit generated script.py
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git add script.py
-        git commit -m "🤖 Auto-generate script.py from config.json" || echo "No changes to commit"
-        git push
+      - name: Commit generated scripts
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add script1.py script2.py
+          git commit -m "🤖 Auto-generate script1.py and script2.py from config.json" || echo "No changes to commit"
+          git push
