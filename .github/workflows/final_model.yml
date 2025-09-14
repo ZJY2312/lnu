@@ -4,7 +4,8 @@ on:
   schedule:
     # 北京时间 6:00 = UTC 时间 22:00（前一天）
     - cron: '50 21 * * *'
-  workflow_dispatch:  # 添加这个启用手动触发按钮
+  workflow_dispatch:
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
@@ -22,30 +23,32 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Install Microsoft Edge
-        run: |
-          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-          sudo install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
-          sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge-dev.list'
-          sudo apt update
-          sudo apt install -y microsoft-edge-stable
-
-      - name: Install EdgeDriver
-        run: |
-          EDGE_VERSION=$(microsoft-edge-stable --version | grep -oP '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
-          wget https://msedgedriver.azureedge.net/$EDGE_VERSION/edgedriver_linux64.zip
-          unzip edgedriver_linux64.zip
-          sudo mv msedgedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/msedgedriver
-      - name: Install fonts for headless browser
+      - name: Install Google Chrome
         run: |
           sudo apt-get update
+          sudo apt-get install -y wget unzip
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
+
+      - name: Install ChromeDriver
+        run: |
+          pip install webdriver-manager
+          python3 -c "
+          from webdriver_manager.chrome import ChromeDriverManager
+          import shutil
+          import os
+          driver_path = ChromeDriverManager().install()
+          shutil.copy2(driver_path, '/usr/local/bin/chromedriver')
+          os.chmod('/usr/local/bin/chromedriver', 0o755)
+          "
+
+      - name: Install fonts for headless browser
+        run: |
           sudo apt-get install -y fonts-noto-cjk fonts-noto-color-emoji
 
-
-      - name: Run script.py and save full log
+      - name: Run main.py and save full log
         run: |
-          timeout 41m python  script.py 2>&1 | tee output.log
+          timeout 41m python main.py 2>&1 | tee output.log
 
       - name: Encode full log for email (skip first 5 lines)
         id: encode_log
@@ -53,7 +56,6 @@ jobs:
           echo "LOG_FULL<<EOF" >> $GITHUB_ENV
           tail -n +6 output.log >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-
 
       - name: Send email with full log content
         uses: dawidd6/action-send-mail@v3
